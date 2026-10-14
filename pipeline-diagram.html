@@ -3,7 +3,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@400;700&display=swap">
 <style>
-/* Layout: a sheet of graph paper (chalkboard in dark mode); two wide hand-drawn diagrams (the whole pipeline, then the SSH playbook), then roles and guardrails in a reading column. */
+/* Layout: a sheet of graph paper (chalkboard in dark mode). Version 2: the general pipeline, a plain-language
+   "how it works as one" section, three attack playbooks drawn on one shared template, then roles and guardrails. */
 :root{
   --paper:#f2f6f7; --grid:rgba(52,96,140,.09); --ink:#1d2830; --muted:#55636d; --rule:#c4cfd4; --card:rgba(255,255,255,.72);
   --blue:#2153c4; --red:#bf3527; --amber:#a86d10; --purple:#6a3cc0; --green:#1b7a45;
@@ -31,14 +32,21 @@ body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 
 h1,h2,h3{font-family:var(--hand);font-weight:700;line-height:1.1;margin:0;text-wrap:balance}
 h1{font-size:clamp(2.2rem,6vw,3.2rem)}
 h2{font-size:1.7rem}
+h3{font-size:1.3rem}
 p{margin:0}
+a{color:var(--blue)}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
 .eyebrow{font-family:var(--hand);font-size:1.05rem;color:var(--blue);letter-spacing:.02em}
 .lede{font-size:1.12rem;color:var(--ink);max-width:62ch}
 .lede b{font-weight:700}
+.ver{font-size:.9rem;color:var(--muted)}
+.ver b{color:var(--ink)}
 .sketch{border:2px solid var(--ink);border-radius:255px 14px 225px 14px/14px 225px 14px 255px;background:var(--card);padding:16px 20px}
 .changes{display:grid;gap:10px;margin:0;padding:0;list-style:none}
 .changes li{display:grid;grid-template-columns:1.6rem 1fr;gap:6px;align-items:start}
 .changes li::before{content:"✓";font-family:var(--hand);font-weight:700;color:var(--green);font-size:1.3rem;line-height:1.2}
+.jump{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--hand);font-size:1.05rem}
+.jump a{text-decoration:none;border-bottom:1.5px dashed currentColor}
 .diagram{display:grid;gap:12px}
 .board{overflow-x:auto;border-radius:6px}
 .board svg{display:block;width:100%;min-width:720px;height:auto}
@@ -48,23 +56,23 @@ p{margin:0}
 .legend i{width:22px;height:14px;border:2px solid currentColor;border-radius:4px 9px 5px 8px/8px 4px 9px 5px;display:inline-block}
 .k-blue i{color:var(--blue);background:var(--blue-fill)} .k-purple i{color:var(--purple);background:var(--purple-fill)}
 .k-green i{color:var(--green);background:var(--green-fill)} .k-amber i{color:var(--amber);background:var(--amber-fill)}
-.k-red i{color:var(--red);background:var(--red-fill)}
-ol.story{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:14px}
-ol.story li{counter-increment:s;display:grid;grid-template-columns:2.2rem 1fr;gap:10px;align-items:start}
-ol.story li::before{content:counter(s);font-family:var(--hand);font-weight:700;font-size:1.25rem;width:2rem;height:2rem;display:grid;place-items:center;border:2px solid var(--ink);border-radius:52% 48% 55% 45%/48% 55% 45% 52%}
-.branch{border-left:3px solid var(--red);padding-left:14px;color:var(--ink)}
-.branch b{color:var(--red)}
+.k-red i{color:var(--red);background:var(--red-fill)} .k-ink i{color:var(--ink);background:var(--ink-fill)}
+.pbhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.phase{font-family:var(--hand);font-size:.95rem;color:var(--amber);border:1.5px solid currentColor;border-radius:12px 4px 10px 5px/5px 10px 4px 12px;padding:0 8px;white-space:nowrap}
+.points{display:grid;gap:14px 28px;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}
+.point{display:grid;gap:6px;align-content:start;min-width:0}
+.point h3{color:var(--blue)}
 .tbl{overflow-x:auto}
 table{border-collapse:collapse;width:100%;min-width:520px;font-size:.95rem}
 th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1.5px dashed var(--rule)}
 tr:last-child td{border-bottom:0}
 th{font-family:var(--hand);font-size:1.1rem;font-weight:700}
 td:first-child{font-weight:700;white-space:nowrap}
-.who-auto{color:var(--blue)} .who-ai{color:var(--purple)} .who-human{color:var(--green)}
+.cover td:first-child{white-space:normal;min-width:11rem}
+.cover td:last-child,.cover th:last-child{font-variant-numeric:tabular-nums;text-align:center}
+.who-auto{color:var(--blue)} .who-ai{color:var(--purple)} .who-human{color:var(--green)} .who-orch{color:var(--ink)}
 ul.plain{margin:0;padding-left:1.2em;display:grid;gap:8px}
 ul.plain li::marker{color:var(--muted)}
-ol.qs{margin:0;padding-left:1.4em;display:grid;gap:8px}
-ol.qs li::marker{font-family:var(--hand);font-weight:700;color:var(--amber)}
 footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);padding-top:12px}
 </style>
 
@@ -72,55 +80,110 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
   <header class="col">
     <div class="eyebrow">HackAI 2026 · Track 01 · CyberShield – Detect, Deceive, Decide</div>
     <h1>CyberShield Pipeline</h1>
-    <p class="lede">CyberShield detects attacks, quietly moves attackers into a honeypot, lets an <b>AI agent</b> investigate, and leaves every consequential decision to a <b>human analyst</b>. It is one pipeline for many attack types; SSH brute force is the first playbook.</p>
+    <p class="lede">CyberShield detects attacks, quietly moves attackers into a honeypot, lets an <b>AI agent</b> investigate, and leaves every consequential decision to a <b>human analyst</b>. One pipeline covers many attack types; each attack type plugs in as a playbook.</p>
+    <p class="ver"><b>Version 2</b> · updated 14 October 2026 · version 1 is kept in the repository as <code>pipeline-diagram-v1.html</code></p>
     <div class="sketch">
       <ul class="changes">
-        <li><span>Containment uses <b>Wazuh Active Response</b>, which is built in. No separate containment product.</span></li>
-        <li><span>Containment works in <b>two stages</b>: attackers trying to get in are redirected into a honeypot on the server; suspicious processes already running are cut off from the network and watched. Both are reversible and expire on their own.</span></li>
-        <li><span>The AI agent <b>only reads and recommends</b>. Blocks and account changes need an analyst.</span></li>
-        <li><span>The lab is <b>three VMs</b>: Wazuh, the victim server (real SSH + Cowrie + Suricata), and the attacker.</span></li>
+        <li><span><b>New in v2: one orchestrator joins everything.</b> Wazuh pushes every alert to it the moment it happens. It groups alerts into incidents, wakes the AI, and asks the analyst.</span></li>
+        <li><span><b>Eight stages.</b> Learn is added: rejected recommendations are reviewed by a person before any rule changes.</span></li>
+        <li><span><b>Only two actions are automatic:</b> the honeypot redirect and cutting a process off from the network. Both are reversible, and both are held while the analyst decides.</span></li>
+        <li><span><b>Three playbooks in full:</b> SSH brute force, a web attack, and malware.</span></li>
       </ul>
     </div>
+    <nav class="jump" aria-label="Sections">
+      <a href="#general">The general pipeline</a>
+      <a href="#together">How it works as one</a>
+      <a href="#ssh">SSH playbook</a>
+      <a href="#web">Web playbook</a>
+      <a href="#malware">Malware playbook</a>
+      <a href="#decide">Who decides</a>
+    </nav>
   </header>
 
-  <section class="diagram">
-    <div class="col"><h2>The complete pipeline</h2><p>Eight stages, the same for every attack type. Each playbook only changes the sensor, the rule and the containment action.</p></div>
-    <div class="board">
-      <svg id="pipe" viewBox="0 0 920 700" role="img" aria-label="CyberShield pipeline: Sense, Detect, Contain automatically, Investigate with the AI agent, Decide with the analyst, Respond, Record in a hash-chained audit log, and Learn, where a person reviews rejections and approves rule changes. Notes list the nine attack-type playbooks by phase and the defences that protect CyberShield itself."></svg>
+  <section class="diagram" id="general">
+    <div class="col">
+      <h2>The general pipeline</h2>
+      <p>Eight stages, the same for every attack type. A playbook only changes three things: which sensor sees the attack, which rule recognises it, and which containment step fits.</p>
     </div>
-  </section>
-
-  <section class="diagram">
-    <div class="col"><h2>Flagship playbook: SSH brute force</h2><p>What happens, step by step, when someone starts guessing passwords.</p></div>
     <div class="board">
-      <svg id="flow" viewBox="0 0 920 1420" role="img" aria-label="Flowchart: attacker hits the victim server; Suricata and SSH logs go to Wazuh; Wazuh either logs it, escalates an actual break-in to the analyst, or automatically redirects the attacker to the Cowrie honeypot; honeypot logs return to Wazuh; the AI agent investigates and recommends; the analyst approves; Wazuh executes; everything is written to a hash-chained audit log."></svg>
+      <svg id="pipe" viewBox="0 0 920 720" role="img" aria-label="The general CyberShield pipeline: Sense, Detect, Contain, Investigate, Decide, Respond, Record and Learn. Wazuh runs stages 1, 2, 3 and 6; the orchestrator runs 4, 5, 7 and 8; the analyst makes the decision. Notes list the attack types by phase and the defences that protect CyberShield itself."></svg>
     </div>
     <div class="legend" aria-hidden="true">
-      <span class="k-blue"><i></i>Automatic (Wazuh, Suricata)</span>
-      <span class="k-amber"><i></i>Honeypot</span>
-      <span class="k-purple"><i></i>AI agent</span>
+      <span class="k-blue"><i></i>Wazuh, automatic</span>
+      <span class="k-amber"><i></i>Containment / honeypot</span>
+      <span class="k-purple"><i></i>AI agent (reads only)</span>
       <span class="k-green"><i></i>Human decides</span>
-      <span class="k-red"><i></i>Attacker / danger</span>
+      <span class="k-ink"><i></i>Orchestrator / record</span>
+      <span class="k-red"><i></i>Attacker</span>
+    </div>
+    <div class="col">
+      <h3>Wide coverage: nine attack types, one pipeline</h3>
+    </div>
+    <div class="tbl sketch">
+      <table class="cover">
+        <thead><tr><th>Attack type</th><th>Seen by</th><th>Automatic containment</th><th>Analyst-approved response</th><th>Phase</th></tr></thead>
+        <tbody>
+          <tr><td>Reconnaissance (port scans)</td><td>Suricata</td><td>None; the IP goes on a watch list, so a redirect comes sooner</td><td>Block</td><td>1</td></tr>
+          <tr><td>SSH or Telnet brute force</td><td>Wazuh login logs</td><td>Redirect to a Cowrie decoy</td><td>Block, disable account</td><td>1</td></tr>
+          <tr><td>Break-in (a real login, then odd activity)</td><td>Wazuh, auditd or Sysmon</td><td>Cut the session's processes off from the network</td><td>Disable account, freeze or kill</td><td>1</td></tr>
+          <tr><td>Web attacks (SQL injection, web shells)</td><td>Suricata, web server logs</td><td>Cut any process the attack starts off from the network</td><td>Timed block, patch the app</td><td>2</td></tr>
+          <tr><td>Denial of service and flooding</td><td>Suricata</td><td>Alert only, because flood sources are often forged</td><td>Timed block of real sources</td><td>2</td></tr>
+          <tr><td>Malware and malicious files</td><td>File monitoring with VirusTotal, auditd or Sysmon</td><td>Cut the running process off from the network</td><td>Kill, quarantine the file</td><td>2</td></tr>
+          <tr><td>Privilege escalation and persistence</td><td>Wazuh audit logs, file monitoring</td><td>Cut off the process that made the change</td><td>Disable account, revert the change</td><td>3</td></tr>
+          <tr><td>Lateral movement and data theft</td><td>Suricata, auditd or Sysmon</td><td>Cut off the process making the connections</td><td>Isolate the host</td><td>3</td></tr>
+          <tr><td>Interception (ARP or DNS spoofing)</td><td>arpwatch, Suricata</td><td>Alert only</td><td>Remove the rogue device</td><td>3</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <section class="col">
-    <h2>The story, step by step</h2>
-    <ol class="story">
-      <li><span>The attacker scans the victim server and starts guessing SSH passwords.</span></li>
-      <li><span>Suricata sees the scan on the network. The server's SSH log records every failed login. The Wazuh agent ships both to Wazuh.</span></li>
-      <li><span>Wazuh's rules sort what they see: nothing odd (just log it), an attack in progress, or an attacker who is already inside.</span></li>
-      <li><span>For an attack in progress, Wazuh Active Response <b>automatically</b> runs our redirect script. It adds a firewall rule on the server so that <i>this attacker's</i> next SSH connection goes to port 2222 instead of 22, and closes their connections that are still guessing passwords. The rule removes itself after a set time. Everyone else still reaches the real SSH service.</span></li>
-      <li><span>The attacker's next attempt lands in Cowrie, which is made to resemble the same server and accepts common default usernames with weak passwords. They think they've finally broken in. Every command and download is recorded and shipped back to Wazuh.</span></li>
-      <li><span>The AI agent pulls everything about that IP from the Wazuh API: the scan, the failed logins, the redirect and the honeypot session. It builds one incident with a timeline, MITRE ATT&amp;CK mapping and a confidence level, citing each log line.</span></li>
-      <li><span>It recommends the next step: release (looks harmless), keep watching, block, or escalate.</span></li>
-      <li><span>The analyst approves or rejects, seeing the evidence and the cost of being wrong.</span></li>
-      <li><span>Wazuh carries out the approved action, for example a firewall block with a timeout, or lifting the redirect. Every step lands in the hash-chained audit log.</span></li>
-    </ol>
-    <p class="branch"><b>If they're already inside:</b> when Wazuh sees a real login followed by suspicious activity (for example a password guessed before the threshold, or a stolen one), redirecting is too late. Their processes are cut off from the network at once while they keep running and stay watched; the SSH session itself stays up. The analyst then decides whether to disable the account (a built-in Wazuh action), freeze or kill the processes.</p>
+  <section class="diagram" id="together">
+    <div class="col">
+      <h2>How it works as one system</h2>
+      <p>CyberShield is not a set of tools that someone starts and connects one by one. Once the lab is running, one loop runs by itself. The only thing a person does is approve or reject.</p>
+    </div>
+    <div class="points">
+      <div class="point"><h3>One collector</h3><p>A small Wazuh agent on each machine gathers what every sensor sees and sends it to one place. Nobody copies logs from tool to tool.</p></div>
+      <div class="point"><h3>Instant reflexes</h3><p>When Wazuh recognises an attack, it reacts within seconds: it redirects the attacker or cuts a process off from the network. These reflexes never wait for the AI, and they undo themselves.</p></div>
+      <div class="point"><h3>One coordinator</h3><p>The orchestrator receives every alert as it happens. It groups alerts from the same attacker into one incident, waits for the burst to settle, then asks the AI once. It follows each incident until it is closed.</p></div>
+      <div class="point"><h3>One click</h3><p>The analyst sees one card per incident, with the evidence and a recommendation. One click approves or rejects it, Wazuh carries it out, and every step is written to a log that shows any tampering.</p></div>
+    </div>
+    <div class="board">
+      <svg id="together-svg" viewBox="0 0 920 400" role="img" aria-label="Twelve alerts in thirty seconds become one incident in the orchestrator, one AI report, and one analyst decision."></svg>
+    </div>
   </section>
 
-  <section class="col">
+  <section class="diagram" id="ssh">
+    <div class="col">
+      <div class="pbhead"><h2>Playbook: SSH brute force and break-in</h2><span class="phase">Phase 1 · flagship</span></div>
+      <p>Someone guesses passwords on a real server. They are moved into the honeypot before they can get in, and judged by what they do there.</p>
+    </div>
+    <div class="board">
+      <svg id="pb-ssh" viewBox="0 0 920 560" role="img" aria-label="SSH playbook: the attacker guesses passwords; Wazuh sees the failed logins; after five failures the attacker is redirected to Cowrie; the orchestrator groups the scan, failures and decoy session into one incident and the agent investigates; the analyst approves a timed block or a release; Wazuh carries it out."></svg>
+    </div>
+  </section>
+
+  <section class="diagram" id="web">
+    <div class="col">
+      <div class="pbhead"><h2>Playbook: web application attack</h2><span class="phase">Phase 2</span></div>
+      <p>Someone tries SQL injection on a web app, then plants a web shell. The probing alone only raises an alert; a shell started by the web server is cut off at once.</p>
+    </div>
+    <div class="board">
+      <svg id="pb-web" viewBox="0 0 920 560" role="img" aria-label="Web playbook: SQL injection and a web shell; web logs, Suricata and auditd see it; a shell started by the web server is cut off from the network; the agent checks whether the injection worked; the analyst approves freezing or killing the shell and a timed block; Wazuh carries it out."></svg>
+    </div>
+  </section>
+
+  <section class="diagram" id="malware">
+    <div class="col">
+      <div class="pbhead"><h2>Playbook: malware downloaded and run</h2><span class="phase">Phase 2</span></div>
+      <p>A file is downloaded and run on a server. It keeps running, but it cannot call home or send data out while the analyst decides.</p>
+    </div>
+    <div class="board">
+      <svg id="pb-malware" viewBox="0 0 920 560" role="img" aria-label="Malware playbook: a downloaded file runs; file monitoring, VirusTotal, auditd and Suricata see it; the process is cut off from the network but keeps running; the agent checks who started it and what it tried to reach; the analyst approves a freeze and kill; Wazuh quarantines the file."></svg>
+    </div>
+  </section>
+
+  <section class="col" id="decide">
     <h2>Who decides what</h2>
     <div class="tbl sketch">
       <table>
@@ -128,8 +191,8 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
         <tbody>
           <tr><td>Redirect to honeypot</td><td class="who-auto">Wazuh, automatically</td><td>Reversible, expires on its own, changes no data, and evidence must be captured fast</td></tr>
           <tr><td>Isolate a process from the network</td><td class="who-auto">Wazuh, automatically</td><td>Reversible and time-limited; the process keeps running and stays watched</td></tr>
-          <tr><td>Hold containment while a decision is pending</td><td class="who-auto">CyberShield, up to a hard cap</td><td>Containment shouldn't lapse only because no analyst has answered; at the cap the incident is escalated</td></tr>
-          <tr><td>Investigate and recommend</td><td class="who-ai">AI agent</td><td>Only reads; never acts on the network</td></tr>
+          <tr><td>Hold containment while a decision is pending</td><td class="who-orch">The orchestrator, up to a hard cap</td><td>Containment shouldn't lapse only because no analyst has answered; at the cap the incident is escalated</td></tr>
+          <tr><td>Investigate and recommend</td><td class="who-ai">AI agent, then the policy table</td><td>The agent only reads; a fixed table, not the AI, picks the recommendation</td></tr>
           <tr><td>Block, disable account, freeze, kill, quarantine, release</td><td class="who-human">Analyst</td><td>Affects real users or destroys evidence, so a person must be accountable</td></tr>
         </tbody>
       </table>
@@ -138,29 +201,18 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
   </section>
 
   <section class="col">
-    <h2>Suricata's role</h2>
+    <h2>Guardrails on automatic containment</h2>
     <ul class="plain">
-      <li><b>Early warning.</b> It flags port scans before the password guessing starts, so a correlation rule can redirect a scanner sooner.</li>
-      <li><b>Sees beyond SSH.</b> Web attacks, exploit attempts on other services, floods and unusual outbound traffic never appear in the SSH log.</li>
-      <li><b>Backs up the honeypot.</b> When an attacker inside Cowrie tries to download malware, Suricata sees the network side of it.</li>
-      <li><b>Benchmark.</b> CIC-IDS2017 recordings are replayed through Suricata to test the agent on public data.</li>
-      <li><b>Blind spot.</b> SSH is encrypted, so Suricata can't read what attackers type. That's Cowrie's job.</li>
+      <li><b>Clear triggers:</b> signals genuine users rarely produce, such as 5 failed logins within a minute, logins to usernames that don't exist, or a program running from a temporary folder.</li>
+      <li><b>Allowlist:</b> admin and monitoring addresses and critical services are never contained automatically; they raise an alert instead.</li>
+      <li><b>Time limits:</b> both automatic actions undo themselves after a timeout. While the analyst decides, the orchestrator extends them up to a hard cap.</li>
+      <li><b>Logged-in sessions are never cut.</b> New connections move to the decoy, connections still guessing passwords are closed, and isolation cuts only the network.</li>
+      <li><b>Rule floors:</b> evidence such as a download attempt sets a minimum confidence that text typed by an attacker cannot talk the AI below.</li>
+      <li><b>Honeypot locked down:</b> Cowrie runs as an unprivileged user, and its port is closed to anyone who hasn't been redirected.</li>
     </ul>
   </section>
 
-  <section class="col">
-    <h2>Guardrails on the automatic redirect</h2>
-    <ul class="plain">
-      <li><b>Clear trigger:</b> e.g. 5 failed logins within a minute, logins to usernames that don't exist, or a scan followed by failures.</li>
-      <li><b>Allowlist:</b> admin and monitoring IPs are never redirected; they raise an alert instead.</li>
-      <li><b>Auto-expiry:</b> the redirect is a stateful Active Response, so Wazuh removes it after the timeout. While the analyst hasn't decided yet, it is held up to a hard cap.</li>
-      <li><b>Logged-in sessions are never cut.</b> New connections move to the decoy, and connections still guessing passwords are closed.</li>
-      <li><b>Analyst notified immediately,</b> with one-click release.</li>
-      <li><b>Honeypot locked down:</b> Cowrie runs as an unprivileged user, and port 2222 is closed to anyone who hasn't been redirected.</li>
-    </ul>
-  </section>
-
-  <footer>Updated 14 October 2026 · HackAI 2026, Track 01 Agentic Cyber Defence</footer>
+  <footer>Version 2 · updated 14 October 2026 · HackAI 2026, Track 01 Agentic Cyber Defence</footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
@@ -177,21 +229,21 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
   var plain = {
     rectangle: function(x,y,w,h,o){ return el("rect",{x:x,y:y,width:w,height:h,rx:8,fill:o.fill||"none",stroke:o.stroke,"stroke-width":o.strokeWidth||2}); },
     polygon: function(p,o){ return el("polygon",{points:p.map(function(q){return q.join(",");}).join(" "),fill:o.fill||"none",stroke:o.stroke,"stroke-width":o.strokeWidth||2}); },
-    linearPath: function(p,o){ return el("polyline",{points:p.map(function(q){return q.join(",");}).join(" "),fill:"none",stroke:o.stroke,"stroke-width":o.strokeWidth||2,"stroke-dasharray":o.strokeLineDash?o.strokeLineDash.join(" "):null}); }
+    linearPath: function(p,o){ return el("polyline",{points:p.map(function(q){return q.join(",");}).join(" "),fill:"none",stroke:o.stroke,"stroke-width":o.strokeWidth||2,"stroke-dasharray":o.strokeLineDash?o.strokeLineDash.join(" "):null}); },
+    circle: function(x,y,d,o){ return el("circle",{cx:x,cy:y,r:d/2,fill:o.fill||"none",stroke:o.stroke,"stroke-width":o.strokeWidth||2}); }
   };
-  var IND = "   ";
 
-  /* ---------- The complete pipeline ---------- */
+  /* ---------- The general pipeline ---------- */
   var pipe = {
     nodes: [
-      {x:20, y:60, w:200,h:120,k:"blue",   t:"1 · Sense",       s:["Suricata · network","Wazuh agent · logs","Cowrie · honeypot"], s0:58, step:20},
-      {x:250,y:60, w:200,h:120,k:"blue",   t:"2 · Detect",      s:["Wazuh rules +","correlation","→ alerts"], s0:58, step:20},
-      {x:480,y:60, w:200,h:120,k:"amber",  t:"3 · Contain",     s:["redirect attackers;","isolate processes;","reversible, auto-expiry"], s0:58, step:20},
-      {x:710,y:60, w:200,h:120,k:"purple", t:"4 · Investigate", s:["AI agent, read-only","timeline · ATT&CK","cites every log line"], s0:58, step:20},
-      {x:710,y:250,w:200,h:120,k:"green",  t:"5 · Decide",      s:["analyst approves","or rejects;","policy table guides"], s0:58, step:20},
-      {x:480,y:250,w:200,h:120,k:"blue",   t:"6 · Respond",     s:["Wazuh executes:","timed block, disable","account, lift redirect"], s0:58, step:20},
-      {x:250,y:250,w:200,h:120,k:"ink",    t:"7 · Record",      s:["hash-chained","audit log of every","step and decision"], s0:58, step:20},
-      {x:20, y:250,w:200,h:120,k:"green",  t:"8 · Learn",       s:["rejections reviewed","by a person, who","approves rule changes"], s0:58, step:20}
+      {x:20, y:60, w:200,h:120,k:"blue",   t:"1 · Sense",       s:["Suricata · network","Wazuh agents · logs","Cowrie · honeypot"]},
+      {x:250,y:60, w:200,h:120,k:"blue",   t:"2 · Detect",      s:["Wazuh rules +","correlation","→ alerts"]},
+      {x:480,y:60, w:200,h:120,k:"amber",  t:"3 · Contain",     s:["redirect attackers;","isolate processes;","reversible, auto-expiry"]},
+      {x:710,y:60, w:200,h:120,k:"purple", t:"4 · Investigate", s:["AI agent, read-only","woken by orchestrator","cites every log line"]},
+      {x:710,y:250,w:200,h:120,k:"green",  t:"5 · Decide",      s:["policy table picks,","analyst approves","or rejects"]},
+      {x:480,y:250,w:200,h:120,k:"blue",   t:"6 · Respond",     s:["Wazuh executes:","timed block, disable","account, freeze, kill"]},
+      {x:250,y:250,w:200,h:120,k:"ink",    t:"7 · Record",      s:["hash-chained","audit log of every","step and decision"]},
+      {x:20, y:250,w:200,h:120,k:"green",  t:"8 · Learn",       s:["rejections reviewed","by a person, who","approves rule changes"]}
     ],
     edges: [
       {p:[[220,120],[250,120]], k:"blue"},
@@ -205,75 +257,102 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
     ],
     labels: [
       {x:28, y:40, t:"attack traffic, server logs, honeypot sessions →", a:"start", k:"red"},
+      {x:695,y:48, t:"webhook", a:"middle", k:"purple"},
       {x:802,y:222,t:"recommends", a:"end"},
-      {x:132,y:207,t:"approved rule changes", a:"start"}
+      {x:132,y:207,t:"approved rule changes", a:"start"},
+      {x:20, y:410,t:"Wazuh runs stages 1, 2, 3 and 6", a:"start", k:"blue", size:17},
+      {x:330,y:410,t:"the orchestrator runs 4, 5, 7 and 8", a:"start", k:"ink", size:17},
+      {x:660,y:410,t:"the analyst makes the decision", a:"start", k:"green", size:17}
     ],
     notes: [
-      {x:20, y:420,w:430,h:250, fill:"--note-warm", k:"amber", rot:-1.2, t:"Playbooks plug in (phase)", s:["• Recon / port scans · 1","• SSH & Telnet brute force · 1 (flagship)","• Actual break-in · 1","• Web attacks · 2","• DoS & flooding · 2","• Malware & malicious files · 2","• Privilege escalation · 3","• Lateral movement, data theft · 3","• Interception (ARP / DNS spoofing) · 3"]},
-      {x:480,y:420,w:430,h:250, fill:"--note", k:"blue", rot:1.1, t:"Shielding CyberShield itself", s:["• prompt injection → data, never orders","• alert floods → group, cap, fall back","• log poisoning → 2 sources must agree","• IP spoofing → act on real connections","• interception → encryption, local model","• tampering → hash-chained log","• over-powerful AI → read-only agent"]}
+      {x:20, y:440,w:430,h:250, fill:"--note-warm", k:"amber", rot:-1.2, t:"Playbooks plug in (phase)", s:["• Recon / port scans · 1","• SSH & Telnet brute force · 1 (flagship)","• Actual break-in · 1","• Web attacks · 2","• DoS & flooding · 2","• Malware & malicious files · 2","• Privilege escalation · 3","• Lateral movement, data theft · 3","• Interception (ARP / DNS spoofing) · 3"]},
+      {x:480,y:440,w:430,h:250, fill:"--note", k:"blue", rot:1.1, t:"Shielding CyberShield itself", s:["• prompt injection → data, never orders","• alert floods → group, cap, fall back","• log poisoning → 2 sources must agree","• IP spoofing → act on real connections","• interception → encryption, local model","• tampering → hash-chained log","• over-powerful AI → read-only agent"]}
     ]
   };
 
-  /* ---------- The SSH playbook ---------- */
-  var flow = {
+  /* ---------- How it works as one: 12 alerts become 1 decision ---------- */
+  var dots = [];
+  for (var i = 0; i < 6; i++){ dots.push({cx:70 + i*60, cy:98,  k:"blue"}); }
+  for (var j = 0; j < 6; j++){ dots.push({cx:70 + j*60, cy:136, k:"amber"}); }
+  var together = {
     nodes: [
-      {x:30, y:40, w:230,h:96, k:"red",    t:"Attacker",              s:["Kali VM","scans + guesses passwords"]},
-      {x:345,y:40, w:250,h:96, k:"ink",    t:"Victim server",         s:["real SSH on port 22","+ Wazuh agent"]},
-      {x:670,y:40, w:220,h:96, k:"blue",   t:"Suricata",              s:["watches network traffic","scans, floods, exploits"]},
-      {x:320,y:200,w:300,h:96, k:"blue",   t:"Wazuh SIEM",            s:["collects every log","rules + correlation"]},
-      {x:40, y:360,w:175,h:72, k:"ink",    t:"Nothing odd",           s:["log it, keep watching"]},
-      {x:700,y:350,w:190,h:96, k:"red",    t:"Already inside!",       s:["real login, then","odd activity"]},
-      {x:320,y:510,w:300,h:104,k:"blue",   t:"Wazuh Active Response", s:["AUTOMATIC redirect script","attacker IP  :22 → :2222","expires on its own"]},
-      {x:320,y:665,w:300,h:110,k:"amber",  t:"Cowrie honeypot :2222", s:["same server, made to resemble it","attacker “finally gets in”","every command recorded"]},
-      {x:320,y:840,w:300,h:116,k:"purple", t:"AI agent investigates", s:["groups alerts by attacker IP","timeline · ATT&CK · confidence","cites the exact log lines"]},
-      {x:320,y:1010,w:300,h:90,k:"purple", t:"Recommendation",        s:["release · keep watching","block · escalate"]},
-      {x:320,y:1155,w:300,h:96,k:"green",  t:"Analyst decides",       s:["approve or reject","sees evidence + cost of error"]},
-      {x:320,y:1305,w:300,h:90,k:"blue",   t:"Wazuh executes",        s:["block with a timeout","or lift the redirect"]},
-      {x:40, y:1010,w:200,h:150,k:"ink",   t:"Audit log",             s:["hash-chained:","every alert, agent","step, decision","and action"]}
+      {x:20, y:40, w:400,h:150,k:"red",    t:"12 alerts, 30 seconds", s:[]},
+      {x:500,y:40, w:400,h:150,k:"ink",    t:"Orchestrator: 1 incident", s:["same attacker, same server: grouped","waits for the burst to settle,","then wakes the AI once","(the redirect already happened)"], s0:62, step:22},
+      {x:500,y:240,w:400,h:130,k:"purple", t:"AI agent: 1 report", s:["timeline · ATT&CK · confidence · stage","every claim cites a log line"], s0:62, step:24},
+      {x:20, y:240,w:400,h:130,k:"green",  t:"Analyst: 1 decision", s:["approve or reject, one click","Wazuh carries it out; all logged"], s0:62, step:24}
     ],
+    dots: dots,
     edges: [
-      {p:[[260,88],[345,88]], k:"red"},
-      {p:[[595,88],[670,88]], k:"blue", dash:true, noHead:true},
-      {p:[[470,136],[470,200]], k:"ink"},
-      {p:[[780,136],[780,248],[620,248]], k:"blue"},
-      {p:[[470,296],[470,323]], k:"ink"},
-      {p:[[295,395],[215,395]], k:"ink"},
-      {p:[[645,395],[700,395]], k:"red"},
-      {p:[[470,467],[470,510]], k:"blue"},
-      {p:[[470,614],[470,665]], k:"amber"},
-      {p:[[320,720],[15,720],[15,262],[320,262]], k:"amber", dash:true},
-      {p:[[470,775],[470,840]], k:"purple"},
-      {p:[[470,956],[470,1010]], k:"purple"},
-      {p:[[470,1100],[470,1155]], k:"green"},
-      {p:[[470,1251],[470,1305]], k:"blue"},
-      {p:[[890,398],[905,398],[905,1203],[620,1203]], k:"red"},
-      {p:[[320,898],[140,898],[140,1010]], k:"muted", dash:true},
-      {p:[[320,1203],[200,1203],[200,1160]], k:"muted", dash:true},
-      {p:[[320,1350],[100,1350],[100,1160]], k:"muted", dash:true}
+      {p:[[420,115],[500,115]], k:"ink"},
+      {p:[[700,190],[700,240]], k:"purple"},
+      {p:[[500,305],[420,305]], k:"green"}
     ],
     labels: [
-      {x:302,y:74, t:"① attack", a:"middle", k:"red"},
-      {x:632,y:74, t:"watches", a:"middle"},
-      {x:480,y:174,t:"② SSH log", a:"start"},
-      {x:790,y:196,t:"② alerts", a:"start"},
-      {x:482,y:494,t:"③ attack in progress", a:"start"},
-      {x:482,y:646,t:"④ next login lands here", a:"start"},
-      {x:26, y:560,t:"⑤ honeypot logs", a:"start", k:"amber"},
-      {x:26, y:580,t:"flow back to Wazuh", a:"start", k:"amber"},
-      {x:482,y:814,t:"⑥ evidence via Wazuh API", a:"start"},
-      {x:482,y:988,t:"⑦ incident report", a:"start"},
-      {x:482,y:1133,t:"⑧ analyst reviews", a:"start"},
-      {x:482,y:1283,t:"⑨ approved action", a:"start"},
-      {x:895,y:860,t:"processes isolated at once,", a:"end", k:"red"},
-      {x:895,y:880,t:"then the analyst decides:", a:"end", k:"red"},
-      {x:895,y:900,t:"disable account, kill process", a:"end", k:"red"},
-      {x:232,y:888,t:"every step logged", a:"middle"}
-    ],
-    diamond: {cx:470, cy:395, hw:175, hh:72, l1:"What does", l2:"Wazuh see?"},
-    notes: [
-      {x:665,y:560,w:225,h:178, fill:"--note", k:"blue", rot:-1.6, t:"Suricata also…", s:["• flags scans before",IND+"the password guessing","• sees non-SSH attacks",IND+"and traffic floods","• sees malware downloads","• replays CIC-IDS2017"]}
+      {x:460,y:104,t:"webhook", a:"middle", k:"ink"},
+      {x:220,y:176,t:"5 failed logins and 1 redirect · 6 decoy events", a:"middle", k:"ink"}
     ]
   };
+
+  /* ---------- Playbooks: one shared six-step template ---------- */
+  var SLOTS = [[20,40],[320,40],[620,40],[620,240],[320,240],[20,240]];
+  var KINDS = ["red","blue","amber","purple","green","blue"];
+  function playbook(steps, note){
+    return {
+      nodes: steps.map(function(s, n){ return {x:SLOTS[n][0], y:SLOTS[n][1], w:280, h:140, k:KINDS[n], t:s.t, s:s.s, s0:60, step:20}; }),
+      edges: [
+        {p:[[300,110],[320,110]], k:"red"},
+        {p:[[600,110],[620,110]], k:"blue"},
+        {p:[[760,180],[760,240]], k:"amber"},
+        {p:[[620,310],[600,310]], k:"purple"},
+        {p:[[320,310],[300,310]], k:"green"}
+      ],
+      labels: [
+        {x:760,y:30, t:"automatic, within seconds", a:"middle", k:"amber"},
+        {x:750,y:216,t:"webhook → orchestrator", a:"end", k:"purple"},
+        {x:310,y:216,t:"one click", a:"middle", k:"green"}
+      ],
+      notes: [ {x:20, y:420, w:880, h:56 + note.s.length*20, fill:"--note", k:"blue", rot:-0.4, t:note.t, s:note.s} ]
+    };
+  }
+
+  var pbSSH = playbook([
+    {t:"1 · Attack",         s:["guesses SSH passwords","on the real server (port 22)"]},
+    {t:"2 · Sense",          s:["login log: failed logins","Suricata: a scan just before"]},
+    {t:"3 · Contain (auto)", s:["5 failures in 60 s →","redirect this IP to Cowrie,","close guessing connections,","expires on its own"]},
+    {t:"4 · Investigate",    s:["scan + failures + decoy","session = 1 incident; checks","usernames, commands and the","download seen by Suricata"]},
+    {t:"5 · Decide",         s:["harmful → timed block","looks harmless → release","analyst approves or rejects"]},
+    {t:"6 · Respond",        s:["Wazuh blocks the IP","or lifts the redirect","every step in the audit log"]}
+  ], {t:"If they're already inside", s:[
+    "A password guessed before the threshold, or a stolen one, means a real login. Redirecting is too late,",
+    "so the shell's processes lose their network but keep running and stay watched; the SSH session stays up.",
+    "The analyst then decides: disable the account, freeze or kill.   ATT&CK: T1046 · T1110 · T1105"
+  ]});
+
+  var pbWeb = playbook([
+    {t:"1 · Attack",         s:["SQL injection on a login page,","then uploads a web shell"]},
+    {t:"2 · Sense",          s:["web server access log","Suricata: HTTP alerts","auditd: what the web server runs"]},
+    {t:"3 · Contain (auto)", s:["probing alone → alert only","web server starts a shell →","that shell loses its network,","keeps running, watched"]},
+    {t:"4 · Investigate",    s:["did the injection work?","status codes, response sizes","did a shell or download follow?","same IP probing other pages?"]},
+    {t:"5 · Decide",         s:["probe failed → watch list","shell running → freeze or kill","plus a timed block (approval)"]},
+    {t:"6 · Respond",        s:["Wazuh freezes or kills the shell","and quarantines the dropped file","then: patch the application"]}
+  ], {t:"Good to know", s:[
+    "Attacker-controlled text, such as URLs and browser names, reaches the AI as untrusted data, never as orders.",
+    "A web block is never automatic: the analyst approves it, since a wrong block shuts out real customers.",
+    "ATT&CK: T1190 · T1505.003 · T1059"
+  ]});
+
+  var pbMalware = playbook([
+    {t:"1 · Attack",         s:["a downloaded file is run","on a Linux server","(e.g. from a stolen account)"]},
+    {t:"2 · Sense",          s:["Wazuh: new file in /tmp","VirusTotal: hash lookup","auditd: run + connections","Suricata: unusual traffic"]},
+    {t:"3 · Contain (auto)", s:["runs from a temp folder, or","its hash is flagged →","process loses its network,","keeps running, watched"]},
+    {t:"4 · Investigate",    s:["who started it, from where?","what did it try to reach?","which files did it touch?","what is the hash's reputation?"]},
+    {t:"5 · Decide",         s:["known admin tool → release","harmful → freeze with a memory","dump, then kill (approval)"]},
+    {t:"6 · Respond",        s:["Wazuh kills the process,","moves the file aside, hashes it","disables the account if needed"]}
+  ], {t:"Good to know", s:[
+    "Cutting the network stops the malware calling home or sending data out, but not damage on the machine",
+    "itself, so the analyst is alerted at once and freeze is one click away.",
+    "In the lab, reputation lookups use a local test list.   ATT&CK: T1105 · T1059 · T1071"
+  ]});
 
   function render(svg, spec){
     while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -293,7 +372,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
       return o;
     }
 
-    spec.edges.forEach(function(e){
+    (spec.edges || []).forEach(function(e){
       svg.appendChild(rc.linearPath(e.p, lineOpts(e.k, e.dash)));
       if (e.noHead) return;
       var a = e.p[e.p.length-2], b = e.p[e.p.length-1];
@@ -304,19 +383,16 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
       svg.appendChild(rc.linearPath([p1, b, p2], ho));
     });
 
-    spec.nodes.forEach(function(n){
+    (spec.nodes || []).forEach(function(n){
       svg.appendChild(rc.rectangle(n.x, n.y, n.w, n.h, {stroke:C[n.k], strokeWidth:2.3, fill:F[n.k], fillStyle:"hachure", hachureGap:9, fillWeight:1.1, hachureAngle:-41, roughness:1.4, seed:next()}));
-      var cx = n.x + n.w/2, s0 = n.s0 || 54, step = n.step || 19;
+      var cx = n.x + n.w/2, s0 = n.s0 || 58, step = n.step || 20;
       text(cx, n.y+30, n.t, {size:22, w:700, color:C[n.k]});
       n.s.forEach(function(line, i){ text(cx, n.y+s0+i*step, line, {size:16, color:C.ink}); });
     });
 
-    if (spec.diamond){
-      var d = spec.diamond;
-      svg.appendChild(rc.polygon([[d.cx,d.cy-d.hh],[d.cx+d.hw,d.cy],[d.cx,d.cy+d.hh],[d.cx-d.hw,d.cy]], {stroke:C.ink, strokeWidth:2.3, fill:F.ink, fillStyle:"hachure", hachureGap:10, roughness:1.4, seed:next()}));
-      text(d.cx, d.cy-4, d.l1, {size:21, w:700, color:C.ink});
-      text(d.cx, d.cy+20, d.l2, {size:21, w:700, color:C.ink});
-    }
+    (spec.dots || []).forEach(function(d){
+      svg.appendChild(rc.circle(d.cx, d.cy, 22, {stroke:C[d.k], strokeWidth:2, fill:F[d.k], fillStyle:"solid", roughness:1.1, seed:next()}));
+    });
 
     (spec.notes || []).forEach(function(note){
       var g = el("g", {transform:"rotate(" + note.rot + " " + (note.x+note.w/2) + " " + (note.y+note.h/2) + ")"});
@@ -326,12 +402,15 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
       note.s.forEach(function(line, i){ text(note.x+16, note.y+56+i*20, line, {size:16, color:C.ink, a:"start", parent:g}); });
     });
 
-    spec.labels.forEach(function(l){ text(l.x, l.y, l.t, {size:15, color:C[l.k||"muted"], a:l.a}); });
+    (spec.labels || []).forEach(function(l){ text(l.x, l.y, l.t, {size:l.size||15, color:C[l.k||"muted"], a:l.a}); });
   }
 
   function draw(){
     render(document.getElementById("pipe"), pipe);
-    render(document.getElementById("flow"), flow);
+    render(document.getElementById("together-svg"), together);
+    render(document.getElementById("pb-ssh"), pbSSH);
+    render(document.getElementById("pb-web"), pbWeb);
+    render(document.getElementById("pb-malware"), pbMalware);
   }
 
   draw();
@@ -340,5 +419,6 @@ footer{font-size:.85rem;color:var(--muted);border-top:1.5px dashed var(--rule);p
     if (mq.addEventListener) mq.addEventListener("change", draw); else if (mq.addListener) mq.addListener(draw);
   } catch (e) {}
   new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
 })();
 </script>
