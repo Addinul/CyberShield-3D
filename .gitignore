@@ -1,0 +1,35 @@
+# Secrets: credentials and tokens live in environment variables or a local .env, never in git
+.env
+.env.*
+*.key
+*.pem
+secrets/
+
+# Runtime data written by the orchestrator
+*.db
+*.sqlite
+audit.jsonl
+
+# Captured lab data: honeypot logs, packet captures, datasets (link to them, don't commit them)
+*.pcap
+*.pcapng
+cowrie.json*
+eve.json*
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Private working notes for the AI assistant (kept local)
+CLAUDE.md

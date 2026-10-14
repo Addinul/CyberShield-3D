@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+# Wazuh custom integration: forwards one alert to the CyberShield orchestrator.
+# Wazuh runs: custom-cybershield <alert_file> <api_key> <hook_url>
+# Install on the Wazuh server as /var/ossec/integrations/custom-cybershield
+#   chmod 750, chown root:wazuh
+import json
+import sys
+import urllib.request
+
+
+def main():
+    alert_file, token, hook_url = sys.argv[1], sys.argv[2], sys.argv[3]
+    with open(alert_file) as f:
+        alert = json.load(f)
+    req = urllib.request.Request(
+        hook_url,
+        data=json.dumps(alert).encode(),
+        headers={"Content-Type": "application/json", "X-CyberShield-Token": token},
+        method="POST",
+    )
+    urllib.request.urlopen(req, timeout=5)  # if this fails, the catch-up loop recovers the alert
+
+
+if __name__ == "__main__":
+    main()

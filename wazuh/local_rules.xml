@@ -1,0 +1,59 @@
+<!--
+  Wazuh server: /var/ossec/etc/rules/local_rules.xml
+  Custom rule IDs start at 100000.
+  Cowrie event names: https://docs.cowrie.org/en/latest/OUTPUT.html
+  To verify in the lab: parent rule 5760 (sshd authentication failed) in the installed ruleset.
+-->
+<group name="cowrie,">
+  <rule id="100000" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="eventid">^cowrie\.</field>
+    <description>Cowrie event</description>
+  </rule>
+
+  <rule id="100001" level="8">
+    <if_sid>100000</if_sid>
+    <field name="eventid">^cowrie.login.success$</field>
+    <description>Cowrie: login to decoy from $(src_ip)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+  <rule id="100002" level="6">
+    <if_sid>100000</if_sid>
+    <field name="eventid">^cowrie.command.input$</field>
+    <description>Cowrie: command in decoy: $(input)</description>
+    <mitre>
+      <id>T1059</id>
+    </mitre>
+  </rule>
+
+  <rule id="100003" level="10">
+    <if_sid>100000</if_sid>
+    <field name="eventid">^cowrie.session.file_download$</field>
+    <description>Cowrie: download attempt $(url)</description>
+    <mitre>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+
+  <rule id="100004" level="5">
+    <if_sid>100000</if_sid>
+    <field name="eventid">^cowrie.session.closed$</field>
+    <description>Cowrie: session closed</description>
+  </rule>
+</group>
+
+<group name="cybershield,">
+  <!-- 5 sshd authentication failures from one IP within 60 s: redirect to the decoy.
+       The threshold is still an open item. -->
+  <rule id="100100" level="10" frequency="5" timeframe="60">
+    <if_matched_sid>5760</if_matched_sid>
+    <same_source_ip />
+    <description>CyberShield: SSH brute force from $(srcip), redirecting to decoy</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+</group>

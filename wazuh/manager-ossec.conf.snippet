@@ -1,0 +1,56 @@
+<!--
+  Wazuh server: /var/ossec/etc/ossec.conf (merge into the existing <ossec_config>).
+  Restart afterwards: systemctl restart wazuh-manager
+-->
+<ossec_config>
+  <!--
+    Push alerts (level 5+) to the CyberShield orchestrator on the host laptop.
+    wazuh-integratord runs /var/ossec/integrations/custom-cybershield for each alert
+    with: <alert_file> <api_key> <hook_url>. Here api_key carries the ingest token.
+    Docs: https://documentation.wazuh.com/current/user-manual/manager/integration-with-external-apis.html
+  -->
+  <integration>
+    <name>custom-cybershield</name>
+    <hook_url>http://192.168.56.1:8000/ingest/wazuh</hook_url>
+    <api_key>CHANGE_ME_INGEST_TOKEN</api_key>
+    <level>5</level>
+    <alert_format>json</alert_format>
+  </integration>
+
+  <!--
+    Stage 1: automatic, stateful, expires on its own.
+    The script lives on the victim in /var/ossec/active-response/bin/ (root:wazuh, 750).
+    Docs: https://documentation.wazuh.com/current/user-manual/capabilities/active-response/custom-active-response-scripts.html
+  -->
+  <command>
+    <name>redirect-cowrie</name>
+    <executable>redirect-cowrie.sh</executable>
+    <timeout_allowed>yes</timeout_allowed>
+  </command>
+  <active-response>
+    <disabled>no</disabled>
+    <command>redirect-cowrie</command>
+    <location>local</location>
+    <rules_id>100100</rules_id>
+    <timeout>600</timeout>
+  </active-response>
+
+  <!--
+    Stage 2 (isolate-process, triggered by rule 100200) follows the same pattern
+    once its trigger rule is written.
+
+    Analyst-only actions get a <command> but NO <active-response> block, so Wazuh
+    never runs them by itself. Only the orchestrator's approve path can start them,
+    through the server API (PUT /active-response).
+  -->
+  <command>
+    <name>release-redirect</name>
+    <executable>release-redirect.sh</executable>
+    <timeout_allowed>no</timeout_allowed>
+  </command>
+  <command>
+    <name>freeze-process</name>
+    <executable>freeze-process.sh</executable>
+    <timeout_allowed>no</timeout_allowed>
+  </command>
+</ossec_config>

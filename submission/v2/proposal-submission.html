@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberShield – Detect, Deceive, Decide (v2)</title>
+<style>
+  /* Print layout for the 1–2 page HackAI proposal. Source text: the "Submission v2 (2 pages)" tab of the Claude Doc. */
+  @page { size: A4; margin: 11mm 15mm 11mm 15mm; }
+  :root { --ink: #1b1f24; --muted: #555d66; --rule: #c9cfd6; --accent: #1f4fb5; --band: #f1f4f8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); background: #fff; font: 9.4pt/1.3 "Segoe UI", Calibri, Arial, sans-serif; }
+  h1 { font-size: 15pt; margin: 0 0 1mm; }
+  .sub { color: var(--muted); margin: 0 0 2.2mm; }
+  .sub b { color: var(--ink); }
+  h2 { font-size: 10.6pt; margin: 2.2mm 0 0.8mm; padding-bottom: 0.5mm; border-bottom: 0.6pt solid var(--rule); color: var(--accent); }
+  p { margin: 0 0 1.4mm; }
+  ul, ol { margin: 0 0 1.4mm; padding-left: 4.6mm; }
+  li { margin: 0 0 0.6mm; }
+  code { font: 8.8pt Consolas, "Courier New", monospace; }
+  a { color: var(--accent); text-decoration: none; }
+  figure { margin: 0.6mm 0 1.2mm; text-align: center; }
+  figure img { width: 68%; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.6pt; margin: 0.6mm 0 1.6mm; }
+  th, td { border: 0.5pt solid var(--rule); padding: 0.8mm 1.4mm; text-align: left; vertical-align: top; }
+  th { background: var(--band); }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+  .flow { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6mm; }
+  .flow li { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>CyberShield – Detect, Deceive, Decide</h1>
+<p class="sub"><b>Agentic cyber defence with human oversight</b> · HackAI 2026, Track 01 Agentic Cyber Defence · Version 2 · In one line: <b>Wazuh contains, the AI investigates, the human decides.</b></p>
+
+<h2>Problem and target user</h2>
+<p>Security teams receive more alerts than they can investigate, many of them false positives, so real attacks get missed. Three gaps make this worse:</p>
+<ul>
+  <li><b>Rules don't investigate.</b> SIEM correlation catches only patterns written in advance and cannot explain its reasoning.</li>
+  <li><b>Blocking ends the evidence trail.</b> A blocked attacker returns from a new address, and the defender has learned nothing about their tools.</li>
+  <li><b>AI verdicts are hard to trust.</b> Many give no evidence, and attacker-written text can manipulate them.</li>
+</ul>
+<p><b>Target user:</b> a Tier 1 analyst in a 24/7 managed security operations centre (SOC) that protects small and mid-sized organisations, who must decide quickly and defensibly.</p>
+
+<h2>Solution: contain first, then decide with evidence</h2>
+<p>CyberShield is one pipeline built on open-source tools (Wazuh, Suricata, Cowrie), joined by one orchestrator service into a single automated loop. Each attack type plugs in as a playbook: a sensor, a detection rule and a containment action. Containment is automatic only when it is reversible, time-limited and changes no data.</p>
+<ul>
+  <li><b>Stage 1, before entry: redirect into a honeypot.</b> After a burst of failed SSH logins, a custom Wazuh Active Response sends only that IP's new connections from port 22 to a Cowrie decoy on port 2222, and closes its connections still guessing passwords. The decoy resembles the real server, so the attacker reveals their tools and intent. Being redirected is not proof of guilt: the session is judged by behaviour (usernames tried, commands run, downloads attempted). Only contact with a standalone decoy, which nobody is ever sent to, is near-certain evidence.</li>
+  <li><b>Stage 2, after entry: contain the process.</b> A suspicious process moves up a ladder: observe (automatic), cut its network while it keeps running and is watched (automatic), freeze it with a memory dump (analyst), then kill it and quarantine its file (analyst). On Linux the process tree moves into a quarantine control group (cgroup) that a firewall rule cuts off; the SSH session stays up, so the attacker stays watched.</li>
+</ul>
+
+<h2>Architecture and data flow</h2>
+<figure><img src="architecture.png" alt="Architecture: sensors and decoys feed the Wazuh server; Active Response redirects or isolates automatically and runs approved actions; the CyberShield orchestrator receives alerts by webhook and holds the read-only AI agent, the policy table and the analyst's decision; every step goes to a hash-chained audit log."></figure>
+<p>Everything runs as one event-driven loop: one Wazuh agent per host collects every sensor, Wazuh contains at once, and a webhook pushes each alert to the orchestrator. The eight stages are the same for every attack type: <b>1 Sense</b> (Suricata <code>eve.json</code>, Wazuh agents with auditd or Sysmon, Cowrie <code>cowrie.json</code>) → <b>2 Detect</b> (Wazuh rules, including custom Cowrie rules, mapped to MITRE ATT&amp;CK) → <b>3 Contain</b> (automatic and reversible) → <b>4 Investigate</b> (the AI agent, woken by the orchestrator) → <b>5 Decide</b> (policy table, then the analyst) → <b>6 Respond</b> (Wazuh runs the approved action) → <b>7 Record</b> (hash-chained audit log) → <b>8 Learn</b> (rejections reviewed by a person, who tunes rules and thresholds).</p>
+
+<h2>Agent workflow and tools</h2>
+<p>The agent (Claude, or a local model via Ollama when logs must stay on-site) works in a loop: it picks a tool, reads the result and decides what to check next. The orchestrator wakes it automatically: it groups one attacker's alerts into one incident and runs the agent once the burst settles or urgent evidence arrives, and again on new evidence, with model calls capped per incident. Its tools are <code>search_alerts</code>, <code>get_honeypot_session</code>, <code>check_ip_reputation</code> and <code>map_to_attack</code> (maps honeypot commands, which carry no ATT&amp;CK tags, to techniques), all read-only, plus <code>propose_action</code>, which can only propose.</p>
+<p>Its choices matter where fixed rules stop. After a download attempt in the honeypot, it pulls Suricata's record of that connection. When a username matches a real account, it checks that account's other logins. When a session looks harmless, it looks up what triggered the redirect, to support a release.</p>
+<p>The output is one incident report: a timeline, MITRE ATT&amp;CK techniques, <b>confidence</b> (low, medium or high) and <b>stage</b> (Probing, Trying to get in, Inside). Every claim cites a log line, and each citation is checked automatically to exist.</p>
+
+<h2>Decision policy and human approval</h2>
+<p>The AI never picks the action: a fixed table maps its two ratings to a recommendation, which the analyst approves or rejects on an approval screen. Only the redirect and process isolation run without an analyst; while a decision is pending they are held up to a hard cap, then escalated as overdue.</p>
+<table>
+  <thead><tr><th>Confidence</th><th>Probing (scans only)</th><th>Trying to get in (login attempts, incl. redirected)</th><th>Inside (real foothold, process isolated)</th></tr></thead>
+  <tbody>
+    <tr><td>Low</td><td>Log only</td><td>Lift the redirect (approval)</td><td>Lift the isolation (approval)</td></tr>
+    <tr><td>Medium</td><td>Watch list; redirect sooner</td><td>Keep in honeypot, alert analyst</td><td>Keep isolated; disable account (approval)</td></tr>
+    <tr><td>High</td><td>Timed block (approval)</td><td>Timed block (approval)</td><td>Freeze or kill, quarantine, disable account (approval)</td></tr>
+  </tbody>
+</table>
+<p>Rules, not the AI, set floors under the ratings: a download attempt means at least medium, touching a standalone decoy means high, and a real login means Inside. On a critical asset, confidence counts one level higher. Allowlisted IPs and critical services are never contained automatically, and a conservative mode turns automatic containment off.</p>
+
+<h2>Safeguards (mapped to the <a href="https://genai.owasp.org/llm-top-10/">OWASP Top 10 for LLM Applications 2025</a>)</h2>
+<ul>
+  <li><b>Prompt injection (LLM01):</b> log text is passed as untrusted data, output is forced into fixed fields, and the floors, the table and the analyst bound what any injected text can change.</li>
+  <li><b>Excessive agency (LLM06) and output handling (LLM05):</b> the agent uses a read-only Wazuh indexer account; only the orchestrator's approve path can run Active Response, through a fixed list of scripts. The approval screen escapes all log text, and analysts log in.</li>
+  <li><b>Data disclosure (LLM02):</b> before a cloud call, real usernames become pseudonyms and passwords are removed; default names such as root stay visible as evidence. A local model is the alternative.</li>
+  <li><b>Flooding (LLM10):</b> the orchestrator waits for a burst to settle before calling the AI, model calls are capped, and the system falls back to plain Wazuh alerting.</li>
+  <li><b>Tampering and learning:</b> a hash-chained, append-only audit log records every alert read, tool call, verdict, decision and action, and its latest hash is copied to a separate machine. Rule changes suggested by rejections apply only after a person approves them.</li>
+  <li><b>Lab safety:</b> all attacks stay on a host-only network with no internet; no honeypot is ever internet-facing.</li>
+</ul>
+
+<h2>Scope and evaluation</h2>
+<p><b>Finals demo (Phase 1, 7 Nov):</b> the SSH brute-force playbook end to end plus Linux process isolation after a break-in, run by the orchestrator with the agent, approval screen and audit log. It runs on one laptop (32 GB RAM, RTX 5070) in VirtualBox: a Wazuh server, a victim (real SSH, Cowrie, Suricata, auditd) and a Kali attacker. Later phases add web, DoS, malware, privilege-escalation and lateral-movement playbooks, and Windows endpoints.</p>
+<p><b>Baseline and metrics:</b> we compare against Wazuh alone, counting both per incident (one attacker source in a 30-minute window). CyberShield sees only what Wazuh alerts on, so the target is the same recall with higher precision and fewer analyst decisions. We also measure evidence accuracy, time from trigger to containment, whether isolated processes can still reach the network, injection resistance, and cost and latency for Claude versus a local model.</p>
+<p><b>Data:</b> scripted lab attacks with a ground-truth log, a benign-activity script, CIC-IDS2017 Monday and Tuesday traffic replayed through Suricata (network detection only), and injection attempts typed inside Cowrie. Seven scenarios, each attack repeated at least 10 times: a full brute force; benign activity only; one attack hidden in noise; prompt injection; a non-allowlisted user's typo; a break-in with a guessed or stolen password; and a genuine user wrongly redirected.</p>
+
+<h2>Limitations</h2>
+<ul>
+  <li>A wrongly contained user fails silently until release; we report the false containment rate. One shared address (office or mobile-network NAT) can put many users in the honeypot.</li>
+  <li>Skilled attackers may spot the decoy, for example by its different SSH host key. We never copy the real key into Cowrie, because that would expose the real server's identity.</li>
+  <li>Network isolation does not stop damage on the machine itself, such as encrypted files; freeze is one click away. On Windows, isolation applies per program, not per process.</li>
+  <li>A three-VM lab is smaller and cleaner than a real network, and CIC-IDS2017 has known labelling errors (<a href="https://hal.archives-ouvertes.fr/hal-03775466">Lanvin et al.</a>), so we report lab results as lab results.</li>
+</ul>
+<p>Closest prior work, <a href="https://github.com/gensecaihq/Wazuh-Autopilot">Wazuh-Autopilot</a>, runs AI agents on Wazuh with approvals; CyberShield adds deception first, honeypot behaviour as evidence, process containment and a measured Wazuh-only baseline.</p>
+
+</body>
+</html>

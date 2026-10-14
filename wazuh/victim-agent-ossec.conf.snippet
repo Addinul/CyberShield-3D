@@ -1,0 +1,26 @@
+<!--
+  Victim VM: /var/ossec/etc/ossec.conf (merge into the existing <ossec_config>).
+  One Wazuh agent tails every sensor and ships it over one encrypted channel.
+  Nothing is wired tool-to-tool.
+-->
+<ossec_config>
+  <!-- Suricata network alerts -->
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/log/suricata/eve.json</location>
+  </localfile>
+
+  <!-- Cowrie decoy sessions (path depends on where Cowrie is installed) -->
+  <localfile>
+    <log_format>json</log_format>
+    <location>/home/cowrie/cowrie/var/log/cowrie/cowrie.json</location>
+  </localfile>
+
+  <!-- auditd: process starts, file access, connections (feeds Stage 2) -->
+  <localfile>
+    <log_format>audit</log_format>
+    <location>/var/log/audit/audit.log</location>
+  </localfile>
+
+  <!-- /var/log/auth.log (real SSH logins) is already in the default agent config. -->
+</ossec_config>
